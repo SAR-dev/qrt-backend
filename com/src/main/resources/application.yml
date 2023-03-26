@@ -5,9 +5,9 @@ spring:
   datasource:
     postgres:
       hikari:
-        jdbc-url: jdbc:postgresql://localhost:5432/qrt?currentSchema=public
-        username: postgres
-        password: admin
+        jdbc-url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/qrt?currentSchema=public}
+        username: ${POSTGRES_USERNAME:postgres}
+        password: ${POSTGRES_PASSWORD:admin}
         driver-class-name: org.postgresql.Driver
         auto-commit: false
         minimum-idle: 10
@@ -30,3 +30,9 @@ google:
   client_secret: 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
 server:
   port: ${PORT:8080}
+flyway:
+  url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/qrt?currentSchema=public}
+  username: ${POSTGRES_USERNAME:postgres}
+  password: ${POSTGRES_PASSWORD:admin}
+  driver-class-name: org.postgresql.Driver
+  baselineOnMigrate: true
