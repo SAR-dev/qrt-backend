@@ -1,45 +1,17 @@
-version: '3'
-
-networks:
-  justkhao:
-    name: justkhao-networks
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.20.0.0/16
-          gateway: 172.20.0.1
+version: '3.6'
 
 services:
-  postgres:
-    image: postgres
-    restart: always
+  qrt-app:
+    container_name: qrt-app
+    image: qrt-app
+    build:
+      context: ./
+      args:
+        PORT: 8080
     environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=admin
-      - POSTGRES_DB=postgres
+      PORT: 8080
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_URL: jdbc:postgresql://192.168.25.235:5432/postgres?currentSchema=public
     ports:
-      - "5432:5432"
-    volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      justkhao:
-        ipv4_address: 172.20.0.3
-
-  pgadmin:
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: "admin@gmail.com"
-      PGADMIN_DEFAULT_PASSWORD: "admin"
-    ports:
-      - "16543:80"
-    depends_on:
-      - postgres
-    networks:
-      justkhao:
-        ipv4_address: 172.20.0.4
-
-volumes:
-  neo4j-data:
-  neo4j-logs:
-  neo4j-conf:
+      - "8080:8080"
