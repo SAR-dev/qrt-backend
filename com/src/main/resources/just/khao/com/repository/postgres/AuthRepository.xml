@@ -12,10 +12,30 @@
     </select>
 
     <insert id="createAuth">
-        INSERT INTO auth
-        (username, email, hashed_password)
-        VALUES
-        (#{username}, #{email}, #{hashed_password})
+        WITH res AS (
+            INSERT INTO auth (
+                username,
+                email,
+                hashed_password
+            ) VALUES (
+                #{username},
+                #{email},
+                #{hashed_password}
+            ) RETURNING id
+        )
+        INSERT INTO profile (
+            issuer,
+            issuer_user_id,
+            first_name,
+            last_name,
+            auth_id
+        ) VALUES (
+            'NATIVE',
+            (SELECT id::varchar FROM res),
+            #{first_name},
+            #{last_name},
+            (SELECT id FROM res)
+        )
     </insert>
 
     <update id="updateToken">
@@ -26,27 +46,33 @@
     </update>
 
     <insert id="createGoogleAuth">
-        DO
-        $do$
-            BEGIN
-                IF EXISTS (SELECT username FROM auth WHERE username = '${username}') THEN
-                    UPDATE auth SET
-                        email = '${email}',
-                        verified = true
-                    WHERE username = '${username}';
-                ELSE
-                    INSERT INTO auth (
-                        username,
-                        email,
-                        verified
-                    ) VALUES (
-                        '${username}',
-                        '${email}',
-                        true
-                    ) ON CONFLICT (email)
-                    DO UPDATE SET verified = true;
-                END IF;
-            END
-        $do$;
+        WITH res AS (
+            INSERT INTO auth (
+                username,
+                email,
+                verified
+            ) VALUES (
+                #{auth.username},
+                #{auth.email},
+                #{auth.email_verified}
+            ) ON CONFLICT (email)
+            DO UPDATE SET verified = EXCLUDED.verified
+            RETURNING id
+        )
+        INSERT INTO profile (
+            issuer,
+            issuer_user_id,
+            first_name,
+            last_name,
+            avatar,
+            auth_id
+        ) VALUES (
+            'GOOGLE',
+            #{google.sub},
+            #{google.family_name},
+            #{google.given_name},
+            #{google.picture},
+            (SELECT id FROM res)
+        ) ON CONFLICT (auth_id) DO NOTHING
     </insert>
 </mapper>

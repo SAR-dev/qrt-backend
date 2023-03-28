@@ -70,18 +70,10 @@ public class AuthService {
     public void createAuth(SignupModel signupModel){
         signupModel.setHashed_password(passwordEncoder.encode(signupModel.getPassword()));
         authRepository.createAuth(signupModel);
-        AuthEntity authEntity = authRepository.findByEmail(signupModel.getEmail());
-
-        ProfileEntity profileEntity = new ProfileEntity();
-        profileEntity.setAuth_id(authEntity.getId());
-        profileEntity.setIssuer("NATIVE");
-        profileEntity.setContact_email(authEntity.getEmail());
-
-        profileRepository.createProfile(profileEntity);
     }
 
-    public void createGoogleAuth(SignupModel signupModel){
-        authRepository.createGoogleAuth(signupModel);
+    public void createGoogleAuth(GoogleToken googleToken, SignupModel signupModel){
+        authRepository.createGoogleAuth(googleToken, signupModel);
     }
 
     public Boolean verifyPassword(String password, String hashed_password){
@@ -159,17 +151,12 @@ public class AuthService {
         return googleToken;
     }
 
-    public void createAuthFromGoogle(GoogleToken googleToken){
+    public TokenModel createTokenFromGoogle(GoogleToken googleToken){
         SignupModel signupModel = new SignupModel();
         signupModel.setEmail(googleToken.getEmail());
         signupModel.setUsername(converter.convertToAlphanumericWithUnderscore((googleToken.getFamily_name() + '.' + googleToken.getGiven_name())));
-        createGoogleAuth(signupModel);
-    }
-
-    public TokenModel createTokenFromGoogle(GoogleToken googleToken){
-        createAuthFromGoogle(googleToken);
+        createGoogleAuth(googleToken, signupModel);
         AuthEntity authEntity = findByEmail(googleToken.getEmail());
-        TokenModel tokenModel = getNewToken(authEntity);
-        return tokenModel;
+        return getNewToken(authEntity);
     }
 }

@@ -8,6 +8,7 @@ import just.khao.com.service.ProfileService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.security.auth.message.AuthException;
 import java.io.IOException;
 
 @RestController
@@ -31,52 +32,40 @@ public class AuthController {
             authService.createAuth(signupModel);
             return HttpStatus.CREATED;
         } catch(Exception e){
-            throw new Exception("Follow the guidelines for creating account!");
+            System.out.println(e);
+            throw new Exception("Account couldn't be created with provided data");
         }
     }
 
     @PostMapping("/sign-in")
-    public ResponseMessage SignIn(@RequestBody SigninModel signinModel) {
-        ResponseMessage responseMessage = new ResponseMessage();
+    public TokenModel SignIn(@RequestBody SigninModel signinModel) throws AuthException {
         AuthEntity authEntity = authService.findByUsernameOrEmail(
                 signinModel.getUsername(),
                 signinModel.getEmail()
         );
-        Boolean isAuthenticated = false;
-        if(authEntity != null){
-            isAuthenticated = authService.verifyPassword(
-                    signinModel.getPassword(),
-                    authEntity.getHashed_password()
-            );
-        }
+        boolean isAuthenticated = authService.verifyPassword(
+                signinModel.getPassword(),
+                authEntity.getHashed_password()
+        );
         if(isAuthenticated){
-            responseMessage.setData(authService.getNewToken(authEntity));
+            return authService.getNewToken(authEntity);
         } else {
-            responseMessage.setStatus(500);
-            responseMessage.setMessage("Password doesn't match!");
+            throw new AuthException("Password doesn't match");
         }
-        return responseMessage;
     }
 
     @PostMapping("/refresh-token")
-    public ResponseMessage RefreshToken(@RequestBody TokenModel tokenModel) {
-        ResponseMessage responseMessage = new ResponseMessage();
-        responseMessage.setData(authService.reIssueToken(tokenModel));
-        return responseMessage;
+    public TokenModel RefreshToken(@RequestBody TokenModel tokenModel) {
+        return authService.reIssueToken(tokenModel);
     }
 
     @PostMapping("/google")
-    public ResponseMessage GoogleSignIn(@RequestBody GoogleSigninModel googleSigninModel) throws IOException, InterruptedException {
+    public TokenModel GoogleSignIn(@RequestBody GoogleSigninModel googleSigninModel) throws IOException, InterruptedException, AuthException {
         GoogleToken googleIdToken = authService.extractGooleToken(googleSigninModel.getToken());
-        ResponseMessage responseMessage = new ResponseMessage();
         if(googleIdToken != null){
-            TokenModel tokenModel = authService.createTokenFromGoogle(googleIdToken);
-            profileService.createProfileFromGoogle(googleIdToken);
-            responseMessage.setData(tokenModel);
+            return authService.createTokenFromGoogle(googleIdToken);
         } else {
-            responseMessage.setStatus(500);
-            responseMessage.setMessage("Invalid Google Account!");
+            throw new AuthException("Invalid Google Account!");
         }
-        return responseMessage;
     }
 }

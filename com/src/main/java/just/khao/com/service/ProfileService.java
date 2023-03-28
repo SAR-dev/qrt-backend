@@ -12,11 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ProfileService {
     private final ProfileRepository profileRepository;
-    private final AuthRepository authRepository;
 
-    public ProfileService(ProfileRepository profileRepository, AuthRepository authRepository) {
+    public ProfileService(ProfileRepository profileRepository) {
         this.profileRepository = profileRepository;
-        this.authRepository = authRepository;
     }
 
     public ProfileEntity findByEmail(String email){
@@ -27,20 +25,4 @@ public class ProfileService {
         return profileRepository.findByUsername(username);
     }
 
-    public void createProfileFromGoogle(GoogleToken googleToken){
-        AuthEntity authEntity = authRepository.findByEmail(googleToken.getEmail());
-
-        ProfileEntity profileEntity = new ProfileEntity();
-        profileEntity.setAuth_id(authEntity.getId());
-        profileEntity.setIssuer("GOOGLE");
-        profileEntity.setIssuer_user_id(googleToken.getSub());
-        profileEntity.setContact_email(googleToken.getEmail());
-        profileEntity.setEmail_verified(googleToken.isEmail_verified());
-        profileEntity.setFull_name(googleToken.getName());
-        profileEntity.setAvatar(googleToken.getPicture());
-        profileEntity.setFirst_name(googleToken.getFamily_name());
-        profileEntity.setLast_name(googleToken.getGiven_name());
-
-        profileRepository.createProfile(profileEntity);
-    }
 }

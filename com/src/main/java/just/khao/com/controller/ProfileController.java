@@ -1,6 +1,6 @@
 package just.khao.com.controller;
 
-import just.khao.com.model.ResponseMessage;
+import just.khao.com.entity.ProfileEntity;
 import just.khao.com.service.ProfileService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,24 +22,15 @@ public class ProfileController {
     }
 
     @GetMapping("/retrieve")
-    public ResponseMessage findProfile(@RequestParam(defaultValue = "") String email, @RequestParam(defaultValue = "") String username){
-        ResponseMessage responseMessage = new ResponseMessage();
+    public ProfileEntity findProfile(
+            @RequestParam(defaultValue = "") String email, @RequestParam(defaultValue = "") String username
+    ) throws Exception {
         if(email != ""){
-            try {
-                responseMessage.setData(profileService.findByEmail(email));
-            } catch(Exception e){
-                responseMessage.setStatus(500);
-                responseMessage.setMessage("Not Allowed!");
-            }
+            return profileService.findByEmail(email);
         }
         if(username != ""){
-            try {
-                responseMessage.setData(profileService.findByUsername(username));
-            } catch(Exception e){
-                responseMessage.setStatus(500);
-                responseMessage.setMessage("Not Allowed!");
-            }
+            return profileService.findByUsername(username);
         }
-        return responseMessage;
+        throw new Exception("Not Allowed!");
     }
 }

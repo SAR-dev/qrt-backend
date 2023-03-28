@@ -11,7 +11,6 @@ public class ProfileEntity {
     private String issuer_user_id;
     private String first_name;
     private String last_name;
-    private String full_name;
     private String avatar;
     private String contact_email;
     private Boolean email_verified;
