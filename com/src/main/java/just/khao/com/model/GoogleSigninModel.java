@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class GoogleSigninModel {
-    private String token;
+    private String token; //access_token from Google
 }
