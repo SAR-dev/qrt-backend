@@ -81,10 +81,11 @@ public class AuthService {
         return matched;
     }
 
-    public String getAccessToken(String email){
+    public String getAccessToken(AuthEntity authEntity){
         Instant now = Instant.now();
         String access_token = JWT.create()
-                .withSubject(email)
+                .withSubject(authEntity.getEmail())
+                .withClaim("username", authEntity.getUsername())
                 .withIssuedAt(Date.from(now))
                 .withExpiresAt(Date.from(now.plus(accessTokenExpTime, ChronoUnit.SECONDS)))
                 .sign(Algorithm.HMAC256(accessTokenSecret));
@@ -92,8 +93,7 @@ public class AuthService {
     }
 
     public String getRefreshToken() {
-        final String token = RandomStringUtils.randomAlphanumeric(25);
-        return passwordEncoder.encode(token);
+        return passwordEncoder.encode(RandomStringUtils.randomAlphanumeric(25));
     }
 
     public Timestamp getRefreshedAt() {
@@ -102,17 +102,15 @@ public class AuthService {
 
     public TokenModel getNewToken(AuthEntity authEntity){
         IssueTokenModel issueTokenModel = new IssueTokenModel();
-        TokenModel tokenModel = new TokenModel();
-
         issueTokenModel.setId(authEntity.getId());
         issueTokenModel.setRefresh_token(getRefreshToken());
         issueTokenModel.setRefreshed_at(getRefreshedAt());
-
         authRepository.updateToken(issueTokenModel);
 
-        tokenModel.setAccess_token(getAccessToken(authEntity.getEmail()));
+        TokenModel tokenModel = new TokenModel();
+        tokenModel.setAccess_token(getAccessToken(authEntity));
         tokenModel.setRefresh_token(passwordEncoder.encode(issueTokenModel.getRefresh_token()));
-        return  tokenModel;
+        return tokenModel;
     }
 
     public boolean verifyRefreshToken(TokenModel tokenModel, AuthEntity authEntity){
