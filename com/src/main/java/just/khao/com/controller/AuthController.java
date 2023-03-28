@@ -5,6 +5,7 @@ import just.khao.com.entity.GoogleToken;
 import just.khao.com.model.*;
 import just.khao.com.service.AuthService;
 import just.khao.com.service.ProfileService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -25,16 +26,13 @@ public class AuthController {
     }
 
     @PostMapping("/sign-up")
-    public ResponseMessage SignUp(@RequestBody SignupModel signupModel){
-        ResponseMessage responseMessage = new ResponseMessage();
+    public HttpStatus SignUp(@RequestBody SignupModel signupModel) throws Exception {
         try{
             authService.createAuth(signupModel);
-            responseMessage.setMessage("User Created");
+            return HttpStatus.CREATED;
         } catch(Exception e){
-            responseMessage.setStatus(500);
-            responseMessage.setMessage("Follow the guidelines for creating account!");
+            throw new Exception("Follow the guidelines for creating account!");
         }
-        return responseMessage;
     }
 
     @PostMapping("/sign-in")

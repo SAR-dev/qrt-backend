@@ -15,13 +15,14 @@
         INSERT INTO auth
         (username, email, hashed_password)
         VALUES
-        (#{username,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{hashed_password, jdbcType=VARCHAR})
+        (#{username}, #{email}, #{hashed_password})
     </insert>
 
     <update id="updateToken">
-        UPDATE auth
-        SET refresh_token = #{refresh_token, jdbcType=VARCHAR}, refreshed_at = #{refreshed_at, jdbcType=TIMESTAMP}
-        WHERE id = #{id, jdbcType=INTEGER}
+        UPDATE auth SET
+            refresh_token = #{refresh_token},
+            refreshed_at = #{refreshed_at}
+        WHERE id = #{id}
     </update>
 
     <insert id="createGoogleAuth">
@@ -29,9 +30,21 @@
         $do$
             BEGIN
                 IF EXISTS (SELECT username FROM auth WHERE username = '${username}') THEN
-                    INSERT INTO auth (email, verified) VALUES ('${email}', true) ON CONFLICT (email) DO UPDATE SET verified = true;
+                    UPDATE auth SET
+                        email = '${email}',
+                        verified = true
+                    WHERE username = '${username}';
                 ELSE
-                    INSERT INTO auth (username, email, verified) VALUES ('${username}', '${email}', true) ON CONFLICT (email) DO UPDATE SET verified = true;
+                    INSERT INTO auth (
+                        username,
+                        email,
+                        verified
+                    ) VALUES (
+                        '${username}',
+                        '${email}',
+                        true
+                    ) ON CONFLICT (email)
+                    DO UPDATE SET verified = true;
                 END IF;
             END
         $do$;

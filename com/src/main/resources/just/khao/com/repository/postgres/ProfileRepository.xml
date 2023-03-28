@@ -6,36 +6,36 @@
     <insert id="createProfile">
         INSERT INTO profile
         (
-        issuer,
-        issuer_user_id,
-        first_name,
-        last_name,
-        full_name,
-        avatar,
-        contact_email,
-        email_verified,
-        auth_id
+            issuer,
+            issuer_user_id,
+            first_name,
+            last_name,
+            full_name,
+            avatar,
+            contact_email,
+            email_verified,
+            auth_id
         )
         VALUES
         (
-        #{issuer,jdbcType=VARCHAR},
-        #{issuer_user_id,jdbcType=VARCHAR},
-        #{first_name, jdbcType=VARCHAR},
-        #{last_name, jdbcType=VARCHAR},
-        #{full_name, jdbcType=VARCHAR},
-        #{avatar, jdbcType=VARCHAR},
-        #{contact_email, jdbcType=VARCHAR},
-        #{email_verified, jdbcType=BOOLEAN},
-        #{auth_id, jdbcType=INTEGER}
+            #{issuer},
+            #{issuer_user_id},
+            #{first_name},
+            #{last_name},
+            #{full_name},
+            #{avatar},
+            #{contact_email},
+            #{email_verified},
+            #{auth_id}
         )
         ON CONFLICT (auth_id) DO NOTHING;
     </insert>
 
     <select id="findByEmail" resultType="just.khao.com.entity.ProfileEntity">
-        SELECT * FROM profile WHERE auth_id=(SELECT id FROM auth WHERE email=#{email,jdbcType=VARCHAR })
+        SELECT * FROM profile WHERE auth_id=(SELECT id FROM auth WHERE email=#{email})
     </select>
 
     <select id="findByUsername" resultType="just.khao.com.entity.ProfileEntity">
-        SELECT * FROM profile WHERE auth_id=(SELECT id FROM auth WHERE username=#{username,jdbcType=VARCHAR })
+        SELECT * FROM profile WHERE auth_id=(SELECT id FROM auth WHERE username=#{username})
     </select>
 </mapper>
