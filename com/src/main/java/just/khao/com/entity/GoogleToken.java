@@ -11,4 +11,13 @@ public class GoogleToken {
     private String picture;
     private String email;
     private boolean email_verified;
+    private boolean valid;
+
+    public boolean isValid() {
+        if(sub == null || name == null || given_name == null || family_name == null || email == null){
+            return false;
+        } else {
+            return true;
+        }
+    }
 }

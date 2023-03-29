@@ -132,7 +132,7 @@ public class AuthService {
         return newToken;
     }
 
-    public GoogleToken extractGooleToken(String token) throws IOException, InterruptedException {
+    public GoogleToken extractGooleToken(String token) throws Exception {
         String accessToken = token;
         String endpoint = "https://www.googleapis.com/oauth2/v3/userinfo";
         String authorizationHeader = "Bearer " + accessToken;
@@ -146,7 +146,11 @@ public class AuthService {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         String responseBody = response.body();
         GoogleToken googleToken = new Gson().fromJson(responseBody, GoogleToken.class);
-        return googleToken;
+        if(googleToken.isValid()) {
+            return googleToken;
+        } else {
+            throw new Exception("Token expired or not valid. Try again.");
+        }
     }
 
     public TokenModel createTokenFromGoogle(GoogleToken googleToken){

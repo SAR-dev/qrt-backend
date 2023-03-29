@@ -32,7 +32,6 @@ public class AuthController {
             authService.createAuth(signupModel);
             return HttpStatus.CREATED;
         } catch(Exception e){
-            System.out.println(e);
             throw new Exception("Account couldn't be created with provided data");
         }
     }
@@ -60,7 +59,7 @@ public class AuthController {
     }
 
     @PostMapping("/google")
-    public TokenModel GoogleSignIn(@RequestBody GoogleSigninModel googleSigninModel) throws IOException, InterruptedException, AuthException {
+    public TokenModel GoogleSignIn(@RequestBody GoogleSigninModel googleSigninModel) throws Exception {
         GoogleToken googleIdToken = authService.extractGooleToken(googleSigninModel.getToken());
         if(googleIdToken != null){
             return authService.createTokenFromGoogle(googleIdToken);
