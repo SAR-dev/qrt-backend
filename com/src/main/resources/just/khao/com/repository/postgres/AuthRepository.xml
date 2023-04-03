@@ -23,7 +23,7 @@
                 #{hashed_password}
             ) RETURNING id
         )
-        INSERT INTO profile (
+        INSERT INTO profiles (
             issuer,
             issuer_user_id,
             first_name,

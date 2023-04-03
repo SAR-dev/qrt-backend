@@ -4,7 +4,7 @@
 
 <mapper namespace="just.khao.com.repository.postgres.ProfileRepository">
     <insert id="createProfile">
-        INSERT INTO profile
+        INSERT INTO profiles
         (
             issuer,
             issuer_user_id,
@@ -32,10 +32,10 @@
     </insert>
 
     <select id="findByEmail" resultType="just.khao.com.entity.ProfileEntity">
-        SELECT * FROM profile WHERE auth_id=(SELECT id FROM auth WHERE email=#{email})
+        SELECT * FROM profiles WHERE auth_id=(SELECT id FROM auth WHERE email=#{email})
     </select>
 
     <select id="findByUsername" resultType="just.khao.com.entity.ProfileEntity">
-        SELECT * FROM profile WHERE auth_id=(SELECT id FROM auth WHERE username=#{username})
+        SELECT * FROM profiles WHERE auth_id=(SELECT id FROM auth WHERE username=#{username})
     </select>
 </mapper>
