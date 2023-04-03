@@ -82,7 +82,7 @@ RETURNS TEXT AS $$
   SELECT "value" FROM "trimmed";
 $$ LANGUAGE SQL STRICT IMMUTABLE;
 
---Title to Slug
+--Title to Slug Function
 CREATE FUNCTION public.set_slug_from_title() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
@@ -91,6 +91,13 @@ BEGIN
   RETURN NEW;
 END
 $$;
+
+--Unique Array Integer Function
+CREATE FUNCTION public.array_unique_int (a integer[]) RETURNS integer[] as $$
+  SELECT array (
+    SELECT DISTINCT v FROM unnest(a) AS b(v)
+  )
+$$ LANGUAGE SQL STRICT;
 
 CREATE TRIGGER update_updated_at_auth BEFORE UPDATE ON "public".auth FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 CREATE TRIGGER update_updated_at_profile BEFORE UPDATE ON "public".profiles FOR EACH ROW EXECUTE FUNCTION update_updated_at();

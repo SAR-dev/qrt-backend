@@ -122,7 +122,6 @@ CREATE TRIGGER update_updated_at_post_image BEFORE UPDATE ON "public".post_image
 CREATE TRIGGER "category_slug_insert" BEFORE INSERT ON "public".categories FOR EACH ROW WHEN (NEW.title IS NOT NULL AND NEW.slug IS NULL) EXECUTE PROCEDURE set_slug_from_title();
 
 
---*Poll Table*--
 --*Heart Table*--
 --*Comment Table*--
 --*Circle Table*--
