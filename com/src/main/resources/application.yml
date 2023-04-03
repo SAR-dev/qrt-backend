@@ -36,3 +36,4 @@ flyway:
   password: ${POSTGRES_PASSWORD:admin}
   driver-class-name: org.postgresql.Driver
   baselineOnMigrate: true
+  locations: classpath:db/migration/{vendor}

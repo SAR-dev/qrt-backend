@@ -13,6 +13,7 @@ CREATE SEQUENCE "public".activity_id_seq START WITH 1 INCREMENT BY 1;
 CREATE SEQUENCE "public".post_id_seq START WITH 1 INCREMENT BY 1;
 CREATE SEQUENCE "public".post_image_id_seq START WITH 1 INCREMENT BY 1;
 CREATE SEQUENCE "public".circle_id_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE "public".comment_id_seq START WITH 1 INCREMENT BY 1;
 
 CREATE TABLE "public".categories (
 	id                   integer DEFAULT nextval('category_id_seq'::regclass) NOT NULL  ,
@@ -101,7 +102,7 @@ CREATE TABLE "public".posts (
     can_vote             boolean DEFAULT true   ,
     created_at           timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL  ,
     updated_at           timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL  ,
-    CONSTRAINT pk_activity PRIMARY KEY ( id )
+    CONSTRAINT pk_post PRIMARY KEY ( id )
 );
 
 CREATE TABLE "public".post_views (
@@ -110,11 +111,12 @@ CREATE TABLE "public".post_views (
 	CONSTRAINT pk_post_view PRIMARY KEY ( post_id,  auth_id)
  );
 
- CREATE TABLE "public".post_loves (
-	post_id              integer NOT NULL REFERENCES "public".posts( id )  ,
-	auth_id              integer NOT NULL REFERENCES "public".auth( id )  ,
-	CONSTRAINT pk_post_love PRIMARY KEY ( post_id,  auth_id)
- );
+CREATE TABLE "public".post_loves (
+    post_id              integer NOT NULL REFERENCES "public".posts( id )  ,
+    auth_id              integer NOT NULL REFERENCES "public".auth( id )  ,
+    amount               integer DEFAULT 1 CHECK (amount >= 1 AND amount <= 10)   ,
+    CONSTRAINT pk_post_love PRIMARY KEY ( post_id,  auth_id)
+);
 
 CREATE TABLE "public".post_images (
 	post_id              integer NOT NULL REFERENCES "public".posts( id )  ,
@@ -138,6 +140,35 @@ CREATE TABLE "public".circle_members (
     CONSTRAINT pk_circle_member PRIMARY KEY (circle_id, member_id)
 );
 
+CREATE TABLE "public".comments (
+    id                   integer DEFAULT nextval('comment_id_seq'::regclass) NOT NULL  ,
+    content              varchar(1500)   ,
+    video_link           link   ,
+    gif_link             link   ,
+    links                link[] ,
+    image_id             integer REFERENCES "public".images( id )  ,
+    parent_id            integer REFERENCES "public".comments( id )  ,
+    author_id            integer NOT NULL REFERENCES "public".auth( id )  ,
+    status               varchar(20) CHECK (status IN ( 'DRAFT', 'PUBLISHED', 'BANNED', 'TRASHED'  ))    ,
+    created_at           timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL  ,
+    updated_at           timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL  ,
+    CONSTRAINT pk_comment PRIMARY KEY ( id )
+);
+
+CREATE TABLE "public".comment_views (
+	comment_id           integer NOT NULL REFERENCES "public".comments( id )  ,
+	auth_id              integer NOT NULL REFERENCES "public".auth( id )  ,
+	CONSTRAINT pk_comment_view PRIMARY KEY ( comment_id,  auth_id)
+ );
+
+CREATE TABLE "public".comment_loves (
+	comment_id           integer NOT NULL REFERENCES "public".comments( id )  ,
+	auth_id              integer NOT NULL REFERENCES "public".auth( id )  ,
+	amount               integer DEFAULT 1 CHECK (amount >= 1 AND amount <= 10)   ,
+	CONSTRAINT pk_comment_love PRIMARY KEY ( comment_id,  auth_id)
+ );
+
+
 CREATE TRIGGER update_updated_at_category BEFORE UPDATE ON "public".categories FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 CREATE TRIGGER update_updated_at_emoji BEFORE UPDATE ON "public".emojis FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 CREATE TRIGGER update_updated_at_image BEFORE UPDATE ON "public".images FOR EACH ROW EXECUTE FUNCTION update_updated_at();
@@ -147,10 +178,6 @@ CREATE TRIGGER update_updated_at_activity BEFORE UPDATE ON "public".activities F
 CREATE TRIGGER update_updated_at_post BEFORE UPDATE ON "public".posts FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 CREATE TRIGGER update_updated_at_post_image BEFORE UPDATE ON "public".post_images FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 CREATE TRIGGER update_updated_at_circle BEFORE UPDATE ON "public".circles FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+CREATE TRIGGER update_updated_at_comment BEFORE UPDATE ON "public".comments FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 CREATE TRIGGER "category_slug_insert" BEFORE INSERT ON "public".categories FOR EACH ROW WHEN (NEW.title IS NOT NULL AND NEW.slug IS NULL) EXECUTE PROCEDURE set_slug_from_title();
-
-
---*Heart Table*--
---*Comment Table*--
---*Circle Table*--
