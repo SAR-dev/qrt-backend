@@ -12,6 +12,7 @@ CREATE SEQUENCE "public".mood_id_seq START WITH 1 INCREMENT BY 1;
 CREATE SEQUENCE "public".activity_id_seq START WITH 1 INCREMENT BY 1;
 CREATE SEQUENCE "public".post_id_seq START WITH 1 INCREMENT BY 1;
 CREATE SEQUENCE "public".post_image_id_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE "public".circle_id_seq START WITH 1 INCREMENT BY 1;
 
 CREATE TABLE "public".categories (
 	id                   integer DEFAULT nextval('category_id_seq'::regclass) NOT NULL  ,
@@ -94,7 +95,6 @@ CREATE TABLE "public".posts (
     location_id          integer REFERENCES "public".locations( id )  ,
     mood_id              integer REFERENCES "public".moods( id )  ,
     category_id          integer REFERENCES "public".categories( id )  ,
-    views                integer[] UNIQUE   ,
     status               varchar(20) CHECK (status IN ( 'DRAFT', 'PUBLISHED', 'BANNED', 'TRASHED'  ))    ,
     can_react            boolean DEFAULT true   ,
     can_comment          boolean DEFAULT true   ,
@@ -104,11 +104,39 @@ CREATE TABLE "public".posts (
     CONSTRAINT pk_activity PRIMARY KEY ( id )
 );
 
+CREATE TABLE "public".post_views (
+	post_id              integer NOT NULL REFERENCES "public".posts( id )  ,
+	auth_id              integer NOT NULL REFERENCES "public".auth( id )  ,
+	CONSTRAINT pk_post_view PRIMARY KEY ( post_id,  auth_id)
+ );
+
+ CREATE TABLE "public".post_loves (
+	post_id              integer NOT NULL REFERENCES "public".posts( id )  ,
+	auth_id              integer NOT NULL REFERENCES "public".auth( id )  ,
+	CONSTRAINT pk_post_love PRIMARY KEY ( post_id,  auth_id)
+ );
+
 CREATE TABLE "public".post_images (
 	post_id              integer NOT NULL REFERENCES "public".posts( id )  ,
 	image_id             integer NOT NULL REFERENCES "public".images( id )  ,
 	CONSTRAINT pk_post_image PRIMARY KEY ( post_id,  image_id)
  );
+
+CREATE TABLE "public".circles (
+	id                   integer DEFAULT nextval('circle_id_seq'::regclass) NOT NULL  ,
+	author_id            integer NOT NULL REFERENCES "public".auth( id )  ,
+	name                 varchar(20)    ,
+	description          varchar(20)    ,
+	created_at           timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL  ,
+    updated_at           timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL  ,
+    CONSTRAINT pk_circle PRIMARY KEY ( id )
+ );
+
+CREATE TABLE "public".circle_members (
+    circle_id            integer NOT NULL REFERENCES "public".circles( id ),
+    member_id            integer NOT NULL REFERENCES "public".auth( id ),
+    CONSTRAINT pk_circle_member PRIMARY KEY (circle_id, member_id)
+);
 
 CREATE TRIGGER update_updated_at_category BEFORE UPDATE ON "public".categories FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 CREATE TRIGGER update_updated_at_emoji BEFORE UPDATE ON "public".emojis FOR EACH ROW EXECUTE FUNCTION update_updated_at();
@@ -118,6 +146,7 @@ CREATE TRIGGER update_updated_at_mood BEFORE UPDATE ON "public".moods FOR EACH R
 CREATE TRIGGER update_updated_at_activity BEFORE UPDATE ON "public".activities FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 CREATE TRIGGER update_updated_at_post BEFORE UPDATE ON "public".posts FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 CREATE TRIGGER update_updated_at_post_image BEFORE UPDATE ON "public".post_images FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+CREATE TRIGGER update_updated_at_circle BEFORE UPDATE ON "public".circles FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 CREATE TRIGGER "category_slug_insert" BEFORE INSERT ON "public".categories FOR EACH ROW WHEN (NEW.title IS NOT NULL AND NEW.slug IS NULL) EXECUTE PROCEDURE set_slug_from_title();
 
