@@ -77,6 +77,27 @@ $$ LANGUAGE plpgsql;
 --END;
 --$$ LANGUAGE PLPGSQL;
 
+--CREATE OR REPLACE FUNCTION rank_posts()
+--RETURNS TABLE (id INTEGER, rank NUMERIC) AS $$
+--BEGIN
+--    RETURN QUERY
+--    SELECT
+--        id,
+--        (
+--            (CASE WHEN status = 'PUBLISHED' THEN 1 ELSE 0 END) * 1000 -- published posts get a higher base score
+--            + COALESCE(boost, 1) * 100 -- the boost column also affects the rank calculation
+--            + (CASE WHEN can_react THEN 1 ELSE 0 END) * 10 -- can_react, can_comment, and can_vote each contribute a small amount
+--            + (CASE WHEN can_comment THEN 1 ELSE 0 END) * 5
+--            + (CASE WHEN can_vote THEN 1 ELSE 0 END) * 2
+--            + random() -- add a random value to the rank calculation
+--        ) AS rank
+--    FROM posts
+--    WHERE status = 'PUBLISHED' -- only rank published posts
+--    ORDER BY rank DESC;
+--END;
+--$$ LANGUAGE plpgsql;
+
+
 
 --SELECT id, content, publish_at, rank
 --FROM posts
