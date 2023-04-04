@@ -1,7 +1,7 @@
 --Link Type Create
 CREATE DOMAIN link AS text
 CHECK(VALUE ~ '^[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$')
-CHECK(LENGTH(VALUE) <= 250);;
+CHECK(LENGTH(VALUE) <= 250);
 
 --Index Sequences
 CREATE SEQUENCE "public".category_id_seq START WITH 1 INCREMENT BY 1;

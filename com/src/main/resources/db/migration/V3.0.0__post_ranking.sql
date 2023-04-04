@@ -50,3 +50,39 @@ BEGIN
     ORDER BY rand;
 END;
 $$ LANGUAGE plpgsql;
+
+--CREATE OR REPLACE FUNCTION rank_posts()
+--RETURNS TABLE(id INTEGER, rank NUMERIC) AS $$
+--BEGIN
+--    RETURN QUERY
+--    SELECT id, (
+--        (length(content) / 1500.0) * 0.3 +
+--        (length(bg_text) / 250.0) * 0.1 +
+--        (length(bg_color) / 20.0) * 0.1 +
+--        (CASE WHEN video_link IS NOT NULL THEN 0.2 ELSE 0 END) +
+--        (CASE WHEN gif_link IS NOT NULL THEN 0.2 ELSE 0 END) +
+--        (array_length(links, 1) / 5.0) * 0.1 +
+--        (CASE WHEN mood_id IS NOT NULL THEN 0.1 ELSE 0 END) +
+--        (CASE WHEN location_id IS NOT NULL THEN 0.1 ELSE 0 END) +
+--        (CASE WHEN category_id IS NOT NULL THEN 0.1 ELSE 0 END) +
+--        (CASE WHEN status = 'PUBLISHED' THEN 0.2 ELSE 0 END) +
+--        (CASE WHEN status = 'DRAFT' THEN -0.1 ELSE 0 END) +
+--        (CASE WHEN status = 'TRASHED' THEN -0.5 ELSE 0 END) +
+--        (CASE WHEN can_react THEN 0.1 ELSE 0 END) +
+--        (CASE WHEN can_comment THEN 0.1 ELSE 0 END) +
+--        (CASE WHEN can_vote THEN 0.1 ELSE 0 END) +
+--        (boost / 10.0) * 0.2
+--    ) + random() AS rank
+--    FROM posts;
+--END;
+--$$ LANGUAGE PLPGSQL;
+
+
+--SELECT id, content, publish_at, rank
+--FROM posts
+--INNER JOIN rank_posts() ON posts.id = rank_posts().id
+--ORDER BY rank DESC;
+
+--SELECT id, rank
+--FROM rank_posts()
+--ORDER BY rank DESC;
