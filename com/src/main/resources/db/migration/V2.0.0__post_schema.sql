@@ -100,6 +100,7 @@ CREATE TABLE "public".posts (
     can_react            boolean DEFAULT true   ,
     can_comment          boolean DEFAULT true   ,
     can_vote             boolean DEFAULT true   ,
+    boost                numeric DEFAULT 1  ,
     created_at           timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL  ,
     updated_at           timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL  ,
     CONSTRAINT pk_post PRIMARY KEY ( id )
@@ -167,7 +168,6 @@ CREATE TABLE "public".comment_loves (
 	amount               integer DEFAULT 1 CHECK (amount >= 1 AND amount <= 10)   ,
 	CONSTRAINT pk_comment_love PRIMARY KEY ( comment_id,  auth_id)
  );
-
 
 CREATE TRIGGER update_updated_at_category BEFORE UPDATE ON "public".categories FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 CREATE TRIGGER update_updated_at_emoji BEFORE UPDATE ON "public".emojis FOR EACH ROW EXECUTE FUNCTION update_updated_at();
