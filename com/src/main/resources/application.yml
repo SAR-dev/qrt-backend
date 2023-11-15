@@ -22,12 +22,12 @@ jwt:
   refreshtoken:
     expirationtime: 900000
 google:
-  client_id: 412190183346-1bev16hi3n99lbr85350mkeshtj5hjrp.apps.googleusercontent.com
-  project_id: encoded-stage-364413
+  client_id: 509761595067-4rdltppspr38kej4cfkhvlfd05b8dmva.apps.googleusercontent.com
+  project_id: tourbuzz-403107
   auth_uri: https://accounts.google.com/o/oauth2/auth
   token_uri: https://oauth2.googleapis.com/token
   auth_provider_x509_cert_url: https://www.googleapis.com/oauth2/v1/certs
-  client_secret: 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
+  client_secret: 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
 server:
   port: ${PORT:8080}
 flyway:

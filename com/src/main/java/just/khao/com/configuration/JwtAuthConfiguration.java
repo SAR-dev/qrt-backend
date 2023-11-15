@@ -39,7 +39,7 @@ public class JwtAuthConfiguration extends OncePerRequestFilter {
         final String authorizationHeader = request.getHeader("Authorization");
         String email = null;
         String access_token;
-        Boolean expired = false;
+        boolean expired = false;
         AuthEntity authEntity = null;
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {

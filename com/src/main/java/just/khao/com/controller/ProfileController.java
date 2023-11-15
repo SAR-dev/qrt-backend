@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Objects;
+
 @RestController
 @RequestMapping("/profile")
 public class ProfileController {
@@ -23,12 +25,13 @@ public class ProfileController {
 
     @GetMapping("/retrieve")
     public ProfileEntity findProfile(
-            @RequestParam(defaultValue = "") String email, @RequestParam(defaultValue = "") String username
+            @RequestParam(defaultValue = "") String email,
+            @RequestParam(defaultValue = "") String username
     ) throws Exception {
-        if(email != ""){
+        if(!email.isEmpty()){
             return profileService.findByEmail(email);
         }
-        if(username != ""){
+        if(!username.isEmpty()){
             return profileService.findByUsername(username);
         }
         throw new Exception("Not Allowed!");

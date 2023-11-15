@@ -6,7 +6,6 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.google.gson.Gson;
 import just.khao.com.entity.AuthEntity;
 import just.khao.com.entity.GoogleToken;
-import just.khao.com.entity.ProfileEntity;
 import just.khao.com.helpers.Converter;
 import just.khao.com.model.IssueTokenModel;
 import just.khao.com.model.SignupModel;
@@ -20,7 +19,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -43,53 +41,35 @@ public class AuthService {
     @Value("${jwt.accesstoken.secretkey}")
     String accessTokenSecret;
 
-    @Value("${google.client_id}")
-    String client_id;
-
     private final AuthRepository authRepository;
+
     private final PasswordEncoder passwordEncoder;
-    private final ProfileRepository profileRepository;
 
     private final Converter converter;
 
-    public AuthService(AuthRepository authRepository, ProfileRepository profileRepository, @Lazy PasswordEncoder passwordEncoder, ProfileRepository profileRepository1, Converter converter) {
+    public AuthService(AuthRepository authRepository, @Lazy PasswordEncoder passwordEncoder, Converter converter) {
         this.authRepository = authRepository;
         this.passwordEncoder = passwordEncoder;
-        this.profileRepository = profileRepository1;
         this.converter = converter;
-    }
-
-    public AuthEntity findByUsernameOrEmail(String username, String email){
-        return authRepository.findByUsernameOrEmail(username, email);
     }
 
     public AuthEntity findByEmail(String email){
         return authRepository.findByEmail(email);
     }
 
-    public void createAuth(SignupModel signupModel){
-        signupModel.setHashed_password(passwordEncoder.encode(signupModel.getPassword()));
-        authRepository.createAuth(signupModel);
-    }
 
     public void createGoogleAuth(GoogleToken googleToken, SignupModel signupModel){
         authRepository.createGoogleAuth(googleToken, signupModel);
     }
 
-    public Boolean verifyPassword(String password, String hashed_password){
-        Boolean matched = passwordEncoder.matches(password, hashed_password);
-        return matched;
-    }
-
     public String getAccessToken(AuthEntity authEntity){
         Instant now = Instant.now();
-        String access_token = JWT.create()
+        return JWT.create()
                 .withSubject(authEntity.getEmail())
                 .withClaim("username", authEntity.getUsername())
                 .withIssuedAt(Date.from(now))
                 .withExpiresAt(Date.from(now.plus(accessTokenExpTime, ChronoUnit.SECONDS)))
                 .sign(Algorithm.HMAC256(accessTokenSecret));
-        return access_token;
     }
 
     public String getRefreshToken() {
@@ -132,10 +112,9 @@ public class AuthService {
         return newToken;
     }
 
-    public GoogleToken extractGooleToken(String token) throws Exception {
-        String accessToken = token;
+    public GoogleToken extractGoogleToken(String token) throws Exception {
         String endpoint = "https://www.googleapis.com/oauth2/v3/userinfo";
-        String authorizationHeader = "Bearer " + accessToken;
+        String authorizationHeader = "Bearer " + token;
 
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()

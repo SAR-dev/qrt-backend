@@ -12,14 +12,12 @@ public class ErrorResponse {
     private Date timestamp;
     private int status;
     private String error;
-//    private String trace;
     private String message;
 
     public ErrorResponse(Exception ex, HttpStatus httpStatus, String msg) {
         this.timestamp = new Date();
         this.status = httpStatus.value();
         this.error = httpStatus.name();
-//        this.trace = ex.getMessage();
         this.message = msg.substring(0, Math.min(msg.length(), 100));
     }
 
