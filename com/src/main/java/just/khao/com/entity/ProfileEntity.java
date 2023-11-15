@@ -13,7 +13,7 @@ public class ProfileEntity {
     private String last_name;
     private String avatar;
     private String contact_email;
-    private Boolean email_verified;
+    private boolean email_verified;
     private int auth_id;
     private Timestamp created_at;
     private Timestamp updated_at;

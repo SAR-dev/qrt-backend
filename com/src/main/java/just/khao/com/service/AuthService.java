@@ -94,9 +94,9 @@ public class AuthService {
     }
 
     public boolean verifyRefreshToken(TokenModel tokenModel, AuthEntity authEntity){
-        Boolean hasOldToken = (authEntity.getRefreshed_at() != null && StringUtils.isNotEmpty(authEntity.getRefresh_token()));
-        Boolean hasValidity = authEntity.getRefreshed_at().plus(refreshTokenExpTime, ChronoUnit.SECONDS).isAfter(Instant.now());
-        Boolean isValid = passwordEncoder.matches(authEntity.getRefresh_token(), tokenModel.getRefresh_token());
+        boolean hasOldToken = (authEntity.getRefreshed_at() != null && StringUtils.isNotEmpty(authEntity.getRefresh_token()));
+        boolean hasValidity = authEntity.getRefreshed_at().plus(refreshTokenExpTime, ChronoUnit.SECONDS).isAfter(Instant.now());
+        boolean isValid = passwordEncoder.matches(authEntity.getRefresh_token(), tokenModel.getRefresh_token());
         return (hasOldToken && hasValidity && isValid);
     }
 

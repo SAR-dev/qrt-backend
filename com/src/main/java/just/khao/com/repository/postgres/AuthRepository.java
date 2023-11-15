@@ -14,5 +14,5 @@ public interface AuthRepository {
 
     void createGoogleAuth(@Param("google") GoogleToken googleToken, @Param("auth") SignupModel signupModel);
 
-    Boolean updateToken(IssueTokenModel issueTokenModel);
+    boolean updateToken(IssueTokenModel issueTokenModel);
 }
